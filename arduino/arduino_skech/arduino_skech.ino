@@ -4,8 +4,8 @@
 #include <SD.h>
 
 // Local Vars :
-const char* ssid = "Aliam_Server_001";
-const char* password = "12345678"; 
+const char* ssid = "psycho-sync";
+const char* password = "33003400"; 
 const int chipSelect = D8; 
 String GG = "" ;
 
@@ -24,33 +24,29 @@ void deleteAllFiles(String dirname);
 String retBytes(String dirname);
 
 void handleRoot(){
-  String html = "<html><body>";
-  html += "<h1>D1 Mini LED Control</h1>";
-  html += "<p style="">AP IP: " + WiFi.softAPIP().toString() + "</p>";
-
-  html += "<p>Text To Show : " + GG + "</p>";
-  
-  html += "<form action='/blink' method='post'>";
-  html += "Num Of Blink : <input type='text' name='num'><br>";
-  html += "<input type='submit' value='Blink LED (2)'>";
-  html += "</form>";
-
-  html += "<h2>Upload Text</h2>";
-  html += "<form action='/' method='post'>";
-  html += "Name: <input type='text' name='name'><br>";
-  html += "Context: <input type='text' name='context' value=" "><br>";
-  html += "<input type='text' name='mode' hidden disabled value='1'><br>";
-  html += "<input type='submit' value='Submit'>";
-  html += "</form>";
-
-  html += "<h2>Download Text</h2>";
-  html += "<form action='/' method='post'>";
-  html += "Name: <input type='text' name='name'><br>";
-  html += "<input type='text' name='context' hidden disabled value=" "><br>";
-  html += "<input type='text' name='mode' hidden disabled value='0'><br>";
-  html += "<input type='submit' value='Submit'>";
-  html += "</form>";
-  html += "</body></html>";
+ String html = "<html><body>
+    <h1>D1 Mini LED Control</h1>
+    <p>AP IP:  + WiFi.softAPIP().toString() + </p>
+    <p>Text To Show:  + "+String(GG)+" + </p>
+    <form action='/blink' method='post'>
+      Num Of Blink: <input type='text' name='num'><br>
+      <input type='submit' value='Blink LED (2)'>
+    </form>
+    <h2>Upload Text</h2>
+    <form action='/' method='post'>
+      Name: <input type='text' name='name'><br>
+      Context: <input type='text' name='context' value= ><br>
+      <input type='text' name='mode' hidden value='1'><br>
+      <input type='submit' value='Submit'>
+    </form>
+    <h2>Download Text</h2>
+    <form action='/' method='post'>
+      Name: <input type='text' name='name'><br>
+      <input type='text' name='context' hidden value= ><br>
+      <input type='text' name='mode' hidden value='0'><br>
+      <input type='submit' value='Submit'>
+    </form>
+  </body></html>";
   
   server.send(200, "text/html", html);
 }
