@@ -4,11 +4,8 @@
 #include <SD.h>
 
 // Local Vars :
-const char* ssid = "psycho-sync";
-const char* password = "33003400"; 
 const int chipSelect = D8; 
 String GG = "" ;
-
 ESP8266WebServer server(80);  
 
 /*
@@ -17,59 +14,35 @@ ESP8266WebServer server(80);
 
 String macToString(const unsigned char* mac);
 void blinkLED(int N , int T);
-void WriteInFile(String name,String text);
-String ReadFromFile(String name);
-String listDirectory(String dirname);
+void WriteInFile(String name,String text,String type);
+String ReadFromFile(String name,String type);
+String listDirectoryTree(String dirname, int depth = 0);
 void deleteAllFiles(String dirname);
 String retBytes(String dirname);
-
-void handleRoot(){
- String html = "<html><body>
-    <h1>D1 Mini LED Control</h1>
-    <p>AP IP:  + WiFi.softAPIP().toString() + </p>
-    <p>Text To Show:  + "+String(GG)+" + </p>
-    <form action='/blink' method='post'>
-      Num Of Blink: <input type='text' name='num'><br>
-      <input type='submit' value='Blink LED (2)'>
-    </form>
-    <h2>Upload Text</h2>
-    <form action='/' method='post'>
-      Name: <input type='text' name='name'><br>
-      Context: <input type='text' name='context' value= ><br>
-      <input type='text' name='mode' hidden value='1'><br>
-      <input type='submit' value='Submit'>
-    </form>
-    <h2>Download Text</h2>
-    <form action='/' method='post'>
-      Name: <input type='text' name='name'><br>
-      <input type='text' name='context' hidden value= ><br>
-      <input type='text' name='mode' hidden value='0'><br>
-      <input type='submit' value='Submit'>
-    </form>
-  </body></html>";
-  
-  server.send(200, "text/html", html);
-}
+void serveFile(String path, String contentType);
+void helpSender();
+void simpleProgramSD();
 
 void handleRootPost(){
-  String name = server.arg("name");
-  String context = server.arg("context");
+  String nam = server.arg("name");
+  String con = server.arg("content");
   String mde = server.arg("mode");
+  String typ = server.arg("type");
   int mode = mde.toInt();
   if(mode == 0){
   String tmp;
-    tmp = ReadFromFile(name);
+    tmp = ReadFromFile(nam,typ);
     server.send(200, "application/json","{\"code\":\"200\",\"data\":\""+tmp+"\"}");
   }else if(mode == 1){
-    WriteInFile(name , context);
+    WriteInFile(nam , con , typ);
     server.send(200, "application/json","{\"code\":\"200\",\"data\":\"OK\"}");
-  }else if(mode == 10){
-    String tmp = listDirectory("/dir/");
+  }else if(mode == 2){
+    String tmp = listDirectoryTree("/");
     server.send(200, "application/json","{\"code\":\"200\",\"data\":\""+tmp+"\"}");
-  }else if(mode == 11){
+  }else if(mode == 3){
     deleteAllFiles("/dir/");
     server.send(200, "application/json","{\"code\":\"200\",\"data\":\"DONE!\"}");
-  }else if(mode == 100){
+  }else if(mode == 4){
     String tmp = retBytes("/dir/");
     server.send(200, "application/json","{\"code\":\"200\",\"data\":\"{\"total\":\"16777216\",\"used\":\""+tmp+"\"}/\"}");
   }
@@ -78,6 +51,9 @@ void handleRootPost(){
 /*
     Setup Function Details Code :
 */
+void treeHandle(){
+  server.send(200,"text/plain",listDirectoryTree("/"));
+}
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -87,15 +63,20 @@ void setup() {
         blinkLED(1,30);
       }
   } 
-  IPAddress apIP(3,3,0,0);
+  IPAddress apIP(44,0,0,4);
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-  WiFi.softAP(ssid, password);
+  WiFi.softAP("psycho-sync", "12345678");
   Serial.println(WiFi.softAPIP());
 /*
     Server Routing Handler :
 */
-  server.on("/", handleRoot);
-  server.on("/3430",HTTP_POST, handleRootPost);
+  server.on("/", HTTP_GET, []() { serveFile("/root/index.html", "text/html"); });
+  server.on("/style.css", HTTP_GET, []() { serveFile("/root/style.css", "text/css"); });
+  server.on("/script.js", HTTP_GET, []() { serveFile("/root/script.js", "application/javascript");}); 
+  server.on("/sd/template/simple", HTTP_GET, simpleProgramSD );
+  server.on("/tree", HTTP_GET, treeHandle );
+  server.on("/help", HTTP_GET, helpSender );
+  server.on("/api",HTTP_POST, handleRootPost);
 
   server.begin();
 }
@@ -133,26 +114,23 @@ void blinkLED(int N , int T) {
     delay(T);
   }
 }
-void WriteInFile(String name,String text){
+void WriteInFile(String name,String content,String type){
   File file;
-  file = SD.open("/dir/"+name+".psy", FILE_WRITE);
+  file = SD.open("/dir/"+name+"."+type+".psy", FILE_WRITE);
   if (file) {
-    Serial.print("Writing to file...");
-    file.print(text);
+    file.print(content);
     file.close();
-    Serial.println("---> done.");
     blinkLED(4 , 30);
   }else {
     blinkLED(20,30);
   }
 }
 
-String ReadFromFile(String name){
+String ReadFromFile(String name,String type){
   File myFile;
   String ret ;
-  myFile = SD.open("/dir/"+name+".psy");
+  myFile = SD.open("/dir/"+name+"."+type+".psy");
   if (myFile) {
-    Serial.println(name+".txt:");
     while (myFile.available()) {
       ret = myFile.readString();
     }
@@ -163,42 +141,42 @@ String ReadFromFile(String name){
   }
   return ret;
 }
-
-String listDirectory(String dirname) {
-  String Tree = "";
-  Tree += " -> Listing directory: "+dirname+"\n";
+String listDirectoryTree(String dirname , int depth) {
+  String tree = "";
+  String indent = "";
+  
+  // Create indentation based on depth (for tree structure)
+  for (int i = 0; i < depth; i++) {
+    indent += "  |-- ";
+  }
 
   File root = SD.open(dirname);
   if (!root) {
-    Tree+= " -> Failed to open directory\n";
-    return "";
+    tree += indent + "[ERROR] Failed to open: " + dirname + "\n";
+    return tree;
   }
   if (!root.isDirectory()) {
-    Tree+= " -> Not a directory\n";
-    return "";
+    tree += indent + dirname + " -> ( File , " + String(root.size()) + " bytes)\n";
+    root.close();
+    return tree;
   }
+
+  tree += indent + dirname + "/ -> (D)\n";
 
   File file = root.openNextFile();
   while (file) {
     if (file.isDirectory()) {
-      Tree+=  " -> DIR: ";
+      // Recursively list subdirectories
+      tree += listDirectoryTree(file.name(), depth + 1);
     } else {
-      Tree+=  " -> FILE: " ;
+      tree += indent + "  |-- " + String(file.name());
+      tree += " -> ( File , " + String(file.size()) + " bytes)\n";
     }
-    Tree+= "-> " + String(file.name());
-    if (!file.isDirectory()) {
-      Tree+=  " -> (";
-      Tree+=  file.size();
-      Tree+=  " bytes)";
-    }
-    Tree+= "\n";
     file = root.openNextFile();
   }
-  
-  file.close();
+
   root.close();
-  return(Tree);
-  blinkLED(4 , 30);
+  return tree;
 }
 
 void deleteAllFiles(String dirname) {
@@ -259,4 +237,89 @@ String retBytes(String dirname) {
   root.close();
   return(String(b));
   blinkLED(4 , 30);
+}
+
+void serveFile(String path, String contentType) {
+  if (SD.exists(path)) {
+    File file = SD.open(path, FILE_READ);
+    server.streamFile(file, contentType);
+    file.close();
+  } else {
+    server.send(404, "text/plain", "File not found");
+  }
+}
+
+void helpSender(){
+  server.send(200, "text/plain","HELLO WORLD");
+}
+void simpleProgramSD(){
+
+// --------------------------------- just for sd setup once program then comment it --------------------------------------
+        deleteAllFiles("/");
+        // Create directories
+        SD.mkdir("root");
+        SD.mkdir("dir");
+        SD.mkdir("settings");
+        // Create index.html in root directory
+        File indexFile = SD.open("root/index.html", FILE_WRITE);
+        if (indexFile) {
+          indexFile.println("<!DOCTYPE html>");
+          indexFile.println("<html>");
+          indexFile.println("<head>");
+          indexFile.println("<title>Arduino SD Card</title>");
+          indexFile.println("<link rel=\"stylesheet\" href=\"style.css\">");
+          indexFile.println("<script src=\"script.js\"></script>");
+          indexFile.println("</head>");
+          indexFile.println("<body>");
+          indexFile.println("<h1>Welcome to Arduino Web Server</h1>");
+          indexFile.println("<p>This page is stored on the SD card</p>");
+          indexFile.println("</body>");
+          indexFile.println("</html>");
+          indexFile.close();
+          Serial.println("index.html created");
+        } else {
+          Serial.println("Error creating index.html");
+        }
+        // Create style.css in root directory
+        File cssFile = SD.open("root/style.css", FILE_WRITE);
+        if (cssFile) {
+          cssFile.println("body {");
+          cssFile.println("  font-family: Arial, sans-serif;");
+          cssFile.println("  max-width: 800px;");
+          cssFile.println("  margin: 0 auto;");
+          cssFile.println("  padding: 20px;");
+          cssFile.println("  background-color: #f5f5f5;");
+          cssFile.println("}");
+          cssFile.println("h1 { color: #0066cc; }");
+          cssFile.close();
+          Serial.println("style.css created");
+        } else {
+          Serial.println("Error creating style.css");
+        }
+        // Create script.js in root directory
+        File jsFile = SD.open("root/script.js", FILE_WRITE);
+        if (jsFile) {
+          jsFile.println("console.log('Hello from Arduino SD card!');");
+          jsFile.println("document.addEventListener('DOMContentLoaded', function() {");
+          jsFile.println("  // Your JavaScript code here");
+          jsFile.println("});");
+          jsFile.close();
+          Serial.println("script.js created");
+        } else {
+          Serial.println("Error creating script.js");
+        }
+        // Create settings.json in settings directory
+        File settingsFile = SD.open("settings/settings.json", FILE_WRITE);
+        if (settingsFile) {
+          settingsFile.println("{");
+          settingsFile.println("  \"code\": 0");
+          settingsFile.println("}");
+          settingsFile.close();
+          Serial.println("settings.json created");
+        } else {
+          Serial.println("Error creating settings.json");
+        }
+// --------------------------------- just for sd setup once program then comment it --------------------------------------
+
+  server.send(200, "text/plain","SD Card Seted and Programed Simple Template");
 }

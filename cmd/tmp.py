@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 import argparse
 import requests
-import os
 import base64
-from typing import Tuple
 
 def encode_file_to_base64(file_path: str) -> str:
     try:
         with open(file_path, 'rb') as f:
             file_content = f.read()
-            print( base64.b64encode(file_content).decode('utf-8'))
             return base64.b64encode(file_content).decode('utf-8')
     except Exception as e:
         raise ValueError(f"Error reading file: {str(e)}")
@@ -30,11 +27,11 @@ def send_to_api(mode: str, name: str, content: str, file_type: str) -> requests.
     elif(mode == "download"):
         inx = '0'
     elif(mode == "tree"):
-        inx = '10'
+        inx = '2'
     elif(mode == "format"):
-        inx = '11'
+        inx = '3'
     elif(mode == "storage"):
-        inx = '100'
+        inx = '4'
 
     if(inx == '0' or inx == '1'):
         data = {
@@ -45,20 +42,18 @@ def send_to_api(mode: str, name: str, content: str, file_type: str) -> requests.
     else:
         data ={
             'mode': inx,
-            'context': content,
+            'content': content,
             'name': name,
         }
-    # print(data)
     try:
-        response = requests.post('http://3.3.0.0/3430', data=data)
+        response = requests.post('http://44.0.0.4/api', data=data)
         return response
     except requests.exceptions.RequestException as e:
-        raise ValueError(f"API Error: {str(e)}")
+        print("yyyyyyy")
 
 def main():
     parser = argparse.ArgumentParser(description='Send And Get File From Local Server')
-    parser.add_argument('-m', '--mode', choices=['upload','download','tree','storage','format','help'], 
-                      required=True, help='Operation mode')
+    parser.add_argument('mode', choices=['upload','download','tree','storage','format','help'], help='Operation mode')
     parser.add_argument('-n', '--name', help='name/attribute')
     parser.add_argument('-p', '--path', help='file path/context')
     parser.add_argument('-t', '--type', choices=["txt" , "png" , "mp3" ], help='file type')
@@ -68,31 +63,20 @@ def main():
     try:
         if args.mode == "upload":
             print(" --- UPLOAD MODE ---")
-            if(args.type == 'txt'):
-                try:
-                    with open(args.path, 'rb') as f:
-                        file_content = f.read()
-                except Exception as e:
-                    raise ValueError(f"Error reading file: {str(e)}")
-                print(file_content)
-                response = send_to_api(args.mode, args.name , file_content, args.type)
+            encoded_content = encode_file_to_base64(args.path)
+            # response = send_to_api(args.mode, args.name , encoded_content, args.type)
+            data ={
+                'mode': "1",
+                'content': encoded_content,
+                'name': args.name,
+                'type': args.type
+            }
+            try:
+                response = requests.post('http://44.0.0.4/api', data=data)
                 if(response.json()['code'] == "200"):
                     print(f" >> Done - Name : "+args.name +"\n")
-            else:    
-                if not args.path :
-                    if not args.name :
-                        if not args.type :  
-                            raise ValueError("File Path & Name & Type are required for Upload Mode")
-                if not os.path.isfile(args.path):
-                    raise NameError("File does not exist")
-                
-                if(args.path == "*"):
-                    args.path = "C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\"+args.name+'.'+args.type
-
-                encoded_content = encode_file_to_base64(args.path)
-                response = send_to_api(args.mode, args.name , encoded_content, args.type)
-                if(response.json()['code'] == "200"):
-                    print(f" >> Done - Name : "+args.name +"\n")
+            except requests.exceptions.RequestException as e:
+                print("yyyyyyy")
 
         elif args.mode == "help":
             print("\n>> Help mode -> Available commands:")
@@ -105,21 +89,28 @@ def main():
             
         elif args.mode == "download":
             print(" --- DOWNLOAD MODE ---")
-            response = send_to_api(args.mode, args.name , "0" , args.type)
-            if(args.type == 'txt'):
-                with open('C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\'+args.name+'.png', 'wb') as f:
-                    f.write(response.json()['data'])
-            else:
-                save_base64_to_file(response.json()['data'], args.type, 'C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\'+args.name)
-            print(f" >> Done - Saved To : C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\")
+            data ={
+                'mode': "0",
+                'content': "null",
+                'name': args.name,
+                'type': args.type
+            }
+            try:
+                response = requests.post('http://44.0.0.4/api', data=data)
+                if(response.json()['code'] == "200"):
+                     save_base64_to_file(response.json()['data'], args.type, 'C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\'+args.name)
+                     print(f" >> Done - Saved To : C:\\Users\\Sorena\\Desktop\\DOWNLOAD\\")
+            except requests.exceptions.RequestException as e:
+                print("yyyyyyy")
 
         elif args.mode == "tree":
             print(" --- Tree ---")
             headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }
-            data = 'name=/&context=0&mode=10'
+            data = 'name=/&context=0&mode=2'
             response = requests.post('http://44.0.0.4/api', headers=headers, data=data)
+            
             TREE = response.text
             # TREE = TREE.split('Listing directory:')[1]
             # TREE = TREE.split('"}')[0]
