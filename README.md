@@ -40,19 +40,12 @@ ___
 **Wemos D1 Mini & SD Card Adapter Pins in common:**
 
 | D1 Mini | SD Adapter |
-
 |--|--|
-
 | GND | GND|
-
 | 3v3 | 3v3|
-
 | D8| CS|
-
 | D7 | MOSI|
-
 | D6 | MISO|
-
 | D5 | CLK|
 
   
@@ -62,11 +55,8 @@ ___
   
 
 | D1 Mini | TP4056 |
-
 |--|--|
-
 | GND | OUT -|
-
 | 5V | OUT +|
 
   
@@ -76,9 +66,6 @@ ___
   
 
 | TP4056 | Battery |
-
 |--|--|
-
 | B - | Negative OF Battery|
-
 | B + | Positive OF Battery|
