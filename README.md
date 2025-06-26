@@ -28,13 +28,17 @@
 | D7 |  MOSI|
 | D6 |  MISO|
 | D5 |  CLK|
+
 Wemos D1 Mini & TP4056 Pins in common:
+
 | D1 Mini |  TP4056 |
 |--|--|
 | GND |  OUT -|
 | 5V |  OUT +|
- TP4056 & Battery :
- | TP4056 |  Battery |
+
+TP4056 & Battery :
+
+| TP4056 |  Battery |
 |--|--|
 | B - |  Negative OF Battery|
 | B + |  Positive OF Battery|
