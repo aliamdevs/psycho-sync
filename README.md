@@ -1,6 +1,4 @@
 
-  
-
 # PSYCHO-SYNC ![C++](https://img.shields.io/badge/C++-darkblue?logo=cplusplus&logoColor=white) ![Python](https://img.shields.io/badge/Python-darkgreen?logo=python&logoColor=white) ![Arduino](https://img.shields.io/badge/Arduino-blue?logo=arduino&logoColor=white)
 
   
@@ -13,7 +11,11 @@
 
   
 
-  
+ ## Dependency
+ 
+
+ - Arduino Board  & And Other Module (Hardware)
+ - [Psyncer Repository.](https://github.com/aliamdevs/psyncer/)
 
 ## Installation
 
@@ -151,15 +153,34 @@ ___
 	  . Install [esptool.py](https://github.com/espressif/esptool?tab=readme-ov-file) .
 	  (2). Find The COM You use And Run The Script In `./bin` Directory :
 	  ```bash
+		cd ./bin
 		esptool --port COM4 write-flash 0x0000 ./esptool.bin
 	```
 	
-		
-
 > If You Have Unkown Error *or* For More Information About Esptool Refer to 		[Esptool.py Docs](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/basic-commands.html) .
+
+---
+### 4. Setup microSD Card
+- **Simple Way :**
+	1. Connect To `psycho-sync`  WiFi with `12345678` Password.
+	2. Open `http:/40.0.0.4/sd/template/simple/` url.
+	3. Done SD Card is Set With Simple Functions.
+- **Advance Way :**
+		1. Access to microSD Card.
+		2. Format it *(Earese All Data)*.
+		3. Copy & Paste The Content of `./sd` Directory into microSD Card.
+		4. Done.
+---
+### 5. Install Psyncer
+Go To [**Psyncer Repository**](https://github.com/aliamdevs/psyncer/) & Install it .
+
+## Usage
+
+ - [Psyncer Repository.](https://github.com/aliamdevs/psyncer/)
+		A Debug Enviromant that Sync a Directory Between Devices Connected to Psycho-Syncer & Module itself.
+ - [Manual Psycho-Syncer Docs.](./docs/README.md)
+ With Some *POST & GET* Requests **Send** *or* **Get** *and* **Manage** Files in microSD Card.
 
 ## License
 
-  
-
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](./LICENSE.txt)
