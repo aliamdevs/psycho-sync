@@ -128,34 +128,35 @@ ___
 & *Choose* **One** of the **Methods** below.
 
  - Using Arduino IDE
-	 (1).  Install Arduino IDE :
+	1.  Install Arduino IDE :
 	From the Arduino website,  [Download](https://www.arduino.cc/en/Main/OldSoftwareReleases)  & install the latest Arduino IDE (v1.8 or later). Available for Windows, Mac, Linux & ARM.
 	
-	(2). Add the ESP8266 module libraries:
+	2. Add the ESP8266 module libraries:
 	From  _**File > Preferences**_, add a  _Boards Manager URL_  `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
 	From _**Tools > Board > Board Manager**_, search for _D1 mini_ and install (+/- 150MB)
 	
-	(3). Connect The Board :
+	3. Connect The Board :
 	From  _**Tools > Port**_  select the correct COM port# as assigned to the device.
 	
-	(4). Install Libraries From  _**Tools> Manage Libraries**_ Search And Install 
+	4. Install Libraries From  _**Tools> Manage Libraries**_ Search And Install 
 	. ESP8266.h Library
 	. SD.h Library
 	
-	(5). Open the Arduino Skech from ` ./arduino/arduino_skech/arduino_skech.ino`
+	5. Open the Arduino Skech from ` ./arduino/arduino_skech/arduino_skech.ino`
 	
-	(6). Upload Code On the Module With Clicking on Upload Icon like below Image .
+	6. Upload Code On the Module With Clicking on Upload Icon like below Image .
+
 	![Sketch](/arduino/circuit/Sketch.jpg)
 
  - Using esptool/py
-	  (1). Dependencies :
-	  . Install [Python](https://www.python.org/) .
-	  . Install [esptool.py](https://github.com/espressif/esptool?tab=readme-ov-file) .
-	  (2). Find The COM You use And Run The Script In `./bin` Directory :
-	  ```bash
-		cd ./bin
-		esptool --port COM4 write-flash 0x0000 ./esptool.bin
-	```
+    1. Dependencies :
+    . Install [Python](https://www.python.org/) .
+    . Install [esptool.py](https://github.com/espressif/esptool?tab=readme-ov-file) .
+    2. Find The COM You use And Run The Script In `./bin` Directory :
+    ```bash
+    cd ./bin
+    esptool --port COM4 write-flash 0x0000 ./esptool.bin
+    ```
 	
 > If You Have Unkown Error *or* For More Information About Esptool Refer to 		[Esptool.py Docs](https://docs.espressif.com/projects/esptool/en/latest/esp32/esptool/basic-commands.html) .
 
@@ -166,10 +167,10 @@ ___
 	2. Open `http:/40.0.0.4/sd/template/simple/` url.
 	3. Done SD Card is Set With Simple Functions.
 - **Advance Way :**
-		1. Access to microSD Card.
-		2. Format it *(Earese All Data)*.
-		3. Copy & Paste The Content of `./sd` Directory into microSD Card.
-		4. Done.
+    1. Access to microSD Card.
+    2. Format it *(Earese All Data)*.
+    3. Copy & Paste The Content of `./sd` Directory into microSD Card.
+    4. Done.
 ---
 ### 5. Install Psyncer
 Go To [**Psyncer Repository**](https://github.com/aliamdevs/psyncer/) & Install it .
