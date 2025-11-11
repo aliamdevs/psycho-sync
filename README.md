@@ -1,13 +1,12 @@
 
-# PSYCHO-SYNC ![C++](https://img.shields.io/badge/C++-darkblue?logo=cplusplus&logoColor=white) ![Python](https://img.shields.io/badge/Python-darkgreen?logo=python&logoColor=white) ![Arduino](https://img.shields.io/badge/Arduino-blue?logo=arduino&logoColor=white)
-
-  
+# PSYCHO-SYNC ![C++](https://img.shields.io/badge/C++-2b2b2b?logo=cplusplus&logoColor=white) ![Python](https://img.shields.io/badge/Python-2b2b2b?logo=python&logoColor=white) ![Arduino](https://img.shields.io/badge/Arduino-2b2b2b?logo=arduino&logoColor=white) ![Arduino](https://img.shields.io/badge/v1.7-ff4769)
+[![](https://img.shields.io/badge/Need%20An%20User%20Interface-2b2b2b?style=for-the-badge&logo=adblock&logoColor=white)](#) 
 
 ## Introduction
 
   
 
-***Hi I'm Ali*** & This Project is a **Lightweight**, **Portable** Directory **Synchronization** Device **With** External **Memory** for receiving **Backup** that does ***NOT***  **Require** a **Host** With Backup Power.
+**Hi I'm Ali** & This Project is a **Lightweight**, **Portable** Directory **Synchronization** Device **With** External **Memory** for receiving **Backup** that does ***NOT***  **Require** a **Host** With Backup Power.
 
   
 
